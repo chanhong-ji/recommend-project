@@ -21,4 +21,11 @@ export const config = {
         host: required('DB_HOST'),
         dialect: required('DB_DIALECT'),
     },
+    bcrypt: {
+        salt: required('BC_SALT', 8),
+    },
+    jwt: {
+        secret: required('JWT_SECRET'),
+        expiresInSec: required('JWT_EXPIRES_IN_SEC', 60 * 60 * 24 * 3),
+    },
 };

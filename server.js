@@ -4,10 +4,16 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import { config } from './config.js';
 import { sequelize } from './db/database.js';
+import userRouter from './router/users.js';
+import UserController from './controller/users.js';
+import * as userDatabase from './data/users.js';
 
 export async function startapp() {
-    const app = express();
+    const corsOptions = {
+        credentials: true,
+    };
 
+    const app = express();
     app.use(cors());
     app.use(express.json());
     app.use(helmet());
@@ -17,6 +23,7 @@ export async function startapp() {
         console.error(error);
         res.sendStatus(500);
     });
+    app.use('/users', userRouter(new UserController(userDatabase)));
 
     await sequelize.sync();
 
