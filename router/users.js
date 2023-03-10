@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, validationResult } from 'express-validator';
+import { body, oneOf, validationResult } from 'express-validator';
 import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -46,11 +46,24 @@ export default function userRouter(userController) {
         validate,
     ];
 
+    const validateUpdate = oneOf([
+        body('username')
+            .trim()
+            .isLength({ min: 3 })
+            .withMessage('username should be more than 4'),
+        body('email').trim().isEmail().withMessage('Invalid email format'),
+        body('avatar').trim().isURL(),
+    ]);
+
     router.post('/', validateSignup, userController.signup);
 
     router.post('/login', validateLogin, userController.login);
 
     router.get('/me', auth, userController.me);
+
+    router.post('/edit', auth, validateUpdate, userController.update);
+
+    router.get('/:userId', userController.profile);
 
     return router;
 }

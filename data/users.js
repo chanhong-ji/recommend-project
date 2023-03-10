@@ -17,7 +17,9 @@ export const User = sequelize.define(
             allowNull: false,
             unique: true,
         },
-        // category
+        avatar: {
+            type: DataTypes.TEXT,
+        },
     },
     { timestamps: false }
 );
@@ -38,4 +40,13 @@ export const findById = async (id) => {
         if (!data) return null;
         return data.dataValues;
     });
+};
+
+export const updateById = async (id, data) => {
+    return User.update(data, { where: { id } })
+        .then((data) => data[0])
+        .catch((error) => {
+            console.error('error at data.users.updatedById', error);
+            return 'error';
+        });
 };

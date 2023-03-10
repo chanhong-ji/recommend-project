@@ -14,12 +14,13 @@ export async function startapp() {
     };
 
     const app = express();
-    app.use(cors());
+    app.use(cors(corsOptions));
     app.use(express.json());
     app.use(helmet());
     app.use(morgan('dev'));
     app.use(express.urlencoded({ extended: true }));
     app.use((error, req, res, next) => {
+        // last error catcher
         console.error(error);
         res.sendStatus(500);
     });

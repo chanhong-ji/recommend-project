@@ -122,7 +122,85 @@ describe('User Controller', () => {
             await userController.me(req, res);
 
             expect(res.statusCode).toBe(200);
-            expect(res._getJSONData()).toEqual({ userId });
+            expect(res._getJSONData()).toMatchObject({ id: userId });
+        });
+    });
+
+    describe('update', () => {
+        let req, res;
+        let username;
+        let userId;
+        let email;
+        beforeEach(() => {
+            username = faker.internet.userName();
+            email = faker.internet.email();
+            userId = faker.random.numeric(3);
+            req = httpMocks.createRequest({ body: { username }, userId });
+            res = httpMocks.createResponse();
+        });
+
+        it('return 200', async () => {
+            const updateById = jest.fn((userId, data) => 1);
+            database.updateById = updateById;
+
+            await userController.update(req, res);
+
+            expect(res.statusCode).toBe(200);
+            expect(updateById).toBeCalledWith(userId, { username });
+        });
+
+        it('return 500 when database returns 0', async () => {
+            database.updateById = () => 'error';
+
+            await userController.update(req, res);
+
+            expect(res.statusCode).toBe(500);
+        });
+
+        it('return 400 when email already taken', async () => {
+            req = httpMocks.createRequest({ body: { email } });
+            const findByEmail = jest.fn(() => Promise.resolve({ email }));
+            database.findByEmail = findByEmail;
+
+            await userController.update(req, res);
+
+            expect(findByEmail).toBeCalled();
+            expect(res.statusCode).toBe(400);
+            expect(res._getJSONData()).toEqual({
+                detail: 'Email already taken',
+            });
+        });
+    });
+
+    describe('profile', () => {
+        let req, res;
+        let userId;
+
+        beforeEach(() => {
+            userId = faker.random.alpha(3);
+            req = httpMocks.createRequest({ params: { userId } });
+            res = httpMocks.createResponse();
+        });
+
+        it('return 200', async () => {
+            const findById = jest.fn((userId) =>
+                Promise.resolve({ id: userId })
+            );
+            database.findById = findById;
+
+            await userController.profile(req, res);
+
+            expect(findById).toBeCalledWith(userId);
+            expect(res.statusCode).toBe(200);
+            expect(res._getJSONData()).toEqual({ id: userId });
+        });
+
+        it('return 404 when user not found', async () => {
+            database.findById = () => null;
+
+            await userController.profile(req, res);
+
+            expect(res.statusCode).toBe(404);
         });
     });
 });
