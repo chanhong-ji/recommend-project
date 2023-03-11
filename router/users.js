@@ -63,7 +63,7 @@ export default function userRouter(userController) {
 
     router.post('/edit', auth, validateUpdate, userController.update);
 
-    router.get('/:userId', userController.profile);
+    router.get('/:id', userController.profile);
 
     return router;
 }

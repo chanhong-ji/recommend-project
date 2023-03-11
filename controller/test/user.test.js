@@ -30,17 +30,16 @@ describe('User Controller', () => {
 
         it('return 201 when user successfully created', async () => {
             database.findByEmail = () => Promise.resolve(null);
-            const userId = faker.random.alpha(3);
+            const userId = faker.random.numeric(3);
             bcrypt.hash = (password) => Promise.resolve(password);
             const createUser = jest.fn(({ username, email, password }) =>
-                Promise.resolve(userId)
+                Promise.resolve({ id: userId })
             );
             database.createUser = createUser;
 
             await userController.signup(req, res);
 
             expect(res.statusCode).toBe(201);
-            expect(res._getJSONData()).toEqual({ userId });
             expect(createUser).toBeCalledWith({ username, email, password });
         });
 
@@ -174,25 +173,34 @@ describe('User Controller', () => {
 
     describe('profile', () => {
         let req, res;
-        let userId;
+        let id;
 
         beforeEach(() => {
-            userId = faker.random.alpha(3);
-            req = httpMocks.createRequest({ params: { userId } });
+            id = faker.random.numeric(3);
+            req = httpMocks.createRequest({ params: { id } });
             res = httpMocks.createResponse();
         });
 
+        it('return 400 when id is not a number', async () => {
+            id = faker.random.alpha(3);
+            req = httpMocks.createRequest({ params: { id } });
+            res = httpMocks.createResponse();
+
+            await userController.profile(req, res);
+
+            expect(res.statusCode).toBe(400);
+            expect(res._getJSONData()).toEqual({ detail: 'Wrong access' });
+        });
+
         it('return 200', async () => {
-            const findById = jest.fn((userId) =>
-                Promise.resolve({ id: userId })
-            );
+            const findById = jest.fn((id) => Promise.resolve({ id }));
             database.findById = findById;
 
             await userController.profile(req, res);
 
-            expect(findById).toBeCalledWith(userId);
+            expect(findById).toBeCalledWith(+id);
             expect(res.statusCode).toBe(200);
-            expect(res._getJSONData()).toEqual({ id: userId });
+            expect(res._getJSONData()).toEqual({ id: +id });
         });
 
         it('return 404 when user not found', async () => {

@@ -17,7 +17,7 @@ export const auth = async (req, res, next) => {
 
     jwt.verify(token, config.jwt.secret, async (error, decoded) => {
         if (error) {
-            console.error(error);
+            // console.error(error);
             return res.status(401).json({ detail: AUTHENTICATION_ERROR });
         }
 

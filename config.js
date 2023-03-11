@@ -14,13 +14,6 @@ export const config = {
     cors: {
         allowedOrigin: required('CORS_ALLOW_ORIGIN', ''),
     },
-    db: {
-        database: required('DB_NAME'),
-        username: required('DB_USERNAME'),
-        password: required('DB_PASSWORD'),
-        host: required('DB_HOST'),
-        dialect: required('DB_DIALECT'),
-    },
     bcrypt: {
         salt: required('BC_SALT', 8),
     },

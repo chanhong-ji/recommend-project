@@ -1,52 +1,29 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../db/database.js';
+import client from './../db/client.js';
 
-export const User = sequelize.define(
-    'user',
-    {
-        username: {
-            type: DataTypes.STRING(45),
-            allowNull: false,
-        },
-        password: {
-            type: DataTypes.STRING(128),
-            allowNull: false,
-        },
-        email: {
-            type: DataTypes.STRING(128),
-            allowNull: false,
-            unique: true,
-        },
-        avatar: {
-            type: DataTypes.TEXT,
-        },
-    },
-    { timestamps: false }
-);
+export const createUser = async (data) =>
+    client.user.create({ data, select: { id: true } });
 
-export const createUser = async (user) => {
-    return User.create(user).then((data) => data.dataValues.id);
-};
-
-export const findByEmail = async (email) => {
-    return User.findOne({ where: { email } }).then((data) => {
-        if (!data) return null;
-        return data.dataValues;
+export const findByEmail = async (email) =>
+    client.user.findUnique({
+        where: {
+            email,
+        },
     });
-};
 
-export const findById = async (id) => {
-    return User.findByPk(id).then((data) => {
-        if (!data) return null;
-        return data.dataValues;
+export const findById = async (id) =>
+    client.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            username: true,
+            avatar: true,
+        },
     });
-};
 
-export const updateById = async (id, data) => {
-    return User.update(data, { where: { id } })
-        .then((data) => data[0])
-        .catch((error) => {
-            console.error('error at data.users.updatedById', error);
-            return 'error';
-        });
-};
+export const updateById = async (userId, data) =>
+    client.user
+        .update({
+            where: { id: userId },
+            data,
+        })
+        .catch((error) => 'error');

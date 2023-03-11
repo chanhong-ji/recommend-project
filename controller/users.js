@@ -14,12 +14,12 @@ class UserController {
             return res.status(400).json({ detail: 'Email already taken' });
 
         const hashed = await this.hash(password);
-        const userId = await this.database.createUser({
+        const result = await this.database.createUser({
             username,
             email,
             password: hashed,
         });
-        return res.status(201).json({ userId });
+        return res.status(201).json(result);
     };
 
     login = async (req, res) => {
@@ -42,8 +42,6 @@ class UserController {
         const user = await this.database.findById(req.userId);
         if (!user) return res.status(404).json({ detail: 'User not found' });
 
-        delete user.password;
-
         return res.status(200).json(user);
     };
 
@@ -61,20 +59,21 @@ class UserController {
                 return res.status(400).json({ detail: 'Email already taken' });
         }
         // return 1, if something has changed
-        const changed = await this.database.updateById(req.userId, data);
+        const result = await this.database.updateById(req.userId, data);
 
-        if (changed == 'error') return res.sendStatus(500);
+        if (result == 'error') return res.sendStatus(500);
         return res.sendStatus(200);
     };
 
     profile = async (req, res) => {
         const {
-            params: { userId },
+            params: { id },
         } = req;
 
-        const user = await this.database.findById(userId);
+        if (isNaN(id)) return res.status(400).json({ detail: 'Wrong access' });
+
+        const user = await this.database.findById(+id);
         if (!user) return res.status(404).json({ detail: 'User not found' });
-        delete user.password;
 
         return res.status(200).json(user);
     };
