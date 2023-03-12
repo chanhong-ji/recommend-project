@@ -4,8 +4,11 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import { config } from './config.js';
 import userRouter from './router/users.js';
+import teamRouter from './router/teams.js';
 import UserController from './controller/users.js';
+import TeamController from './controller/teams.js';
 import * as userDatabase from './data/users.js';
+import * as teamDatabase from './data/teams.js';
 
 export async function startapp() {
     const corsOptions = {
@@ -21,6 +24,12 @@ export async function startapp() {
 
     // routers
     app.use('/users', userRouter(new UserController(userDatabase)));
+    app.use('/teams', teamRouter(new TeamController(teamDatabase)));
+
+    app.use((error, req, res, next) => {
+        console.error(error);
+        res.sendStatus(500);
+    });
 
     const server = app.listen(config.port);
     console.log('Server is ready!!');

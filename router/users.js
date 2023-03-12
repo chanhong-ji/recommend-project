@@ -1,18 +1,9 @@
 import express from 'express';
-import { body, oneOf, validationResult } from 'express-validator';
+import { body, oneOf } from 'express-validator';
 import { auth } from '../middleware/auth.js';
+import { validate } from './../middleware/validator.js';
 
 const router = express.Router();
-
-const validate = (req, res, next) => {
-    const result = validationResult(req);
-
-    if (result.errors.length == 0) {
-        return next();
-    }
-
-    return res.status(400).json({ detail: result.errors[0].msg });
-};
 
 export default function userRouter(userController) {
     const validateLogin = [
