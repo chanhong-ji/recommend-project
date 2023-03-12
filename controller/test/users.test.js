@@ -2,7 +2,7 @@ import httpMocks from 'node-mocks-http';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import UserController from './../users';
+import UserController from '../users';
 
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
