@@ -8,18 +8,6 @@ jest.mock('../../data/teams.js');
 jest.mock('../../data/projects.js');
 
 describe('Middleware - isLeader', () => {
-    it('return 404 when params is not numeric', async () => {
-        const pathId = faker.random.alpha();
-        const req = httpMocks.createRequest({ params: { id: pathId } });
-        const res = httpMocks.createResponse();
-        next = jest.fn();
-
-        await isLeader(req, res, next);
-
-        expect(res.statusCode).toBe(404);
-        expect(next).not.toBeCalled();
-    });
-
     describe('path = "/teams"', () => {
         it('retrun 403 when not a member of team', async () => {
             const pathId = +faker.random.numeric(3);

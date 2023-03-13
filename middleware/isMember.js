@@ -7,8 +7,6 @@ export const isMember = async (req, res, next) => {
         baseUrl,
     } = req;
 
-    if (isNaN(id)) return res.status(404).json({ detail: 'Not found' });
-
     if (baseUrl === '/teams') {
         checkIsMemberOfTeam(+id, req.userId).then((check) => {
             if (!check)
