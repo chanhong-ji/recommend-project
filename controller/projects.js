@@ -18,6 +18,27 @@ class ProjectController {
 
         return res.status(200).json(result);
     };
+
+    // create an idea toward project
+    createIdea = async (req, res) => {
+        const { text } = req.body;
+
+        const idea = await this.database.createIdea(req.projectId, text);
+
+        return res.status(201).json(idea);
+    };
+
+    // get ideas of project ordered by more like
+    getIdeas = async (req, res) => {
+        const { page } = req.query;
+
+        const ideas = await this.database.getIdeas(
+            req.projectId,
+            isNaN(page) ? 1 : page
+        );
+
+        return res.status(200).json(ideas);
+    };
 }
 
 export default ProjectController;

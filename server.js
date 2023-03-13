@@ -6,12 +6,15 @@ import { config } from './config.js';
 import userRouter from './router/users.js';
 import teamRouter from './router/teams.js';
 import projectRouter from './router/projects.js';
+import IdeaRouter from './router/ideas.js';
 import UserController from './controller/users.js';
 import TeamController from './controller/teams.js';
 import ProjectController from './controller/projects.js';
+import IdeaController from './controller/ideas.js';
 import * as userDatabase from './data/users.js';
 import * as teamDatabase from './data/teams.js';
 import * as projectDatabase from './data/projects.js';
+import * as ideaDatabase from './data/ideas.js';
 
 export async function startapp() {
     const corsOptions = {
@@ -29,6 +32,7 @@ export async function startapp() {
     app.use('/users', userRouter(new UserController(userDatabase)));
     app.use('/teams', teamRouter(new TeamController(teamDatabase)));
     app.use('/projects', projectRouter(new ProjectController(projectDatabase)));
+    app.use('/ideas', IdeaRouter(new IdeaController(ideaDatabase)));
 
     app.use((error, req, res, next) => {
         console.error(error);
