@@ -29,18 +29,21 @@ describe('User Controller', () => {
         });
 
         it('return 201 when user successfully created', async () => {
-            database.findByEmail = () => Promise.resolve(null);
             const userId = faker.random.numeric(3);
             bcrypt.hash = (password) => Promise.resolve(password);
-            const createUser = jest.fn(({ username, email, password }) =>
+            database.findByEmail = () => Promise.resolve(null);
+            database.createUser = jest.fn((username, email, password) =>
                 Promise.resolve({ id: userId })
             );
-            database.createUser = createUser;
 
             await userController.signup(req, res);
 
             expect(res.statusCode).toBe(201);
-            expect(createUser).toBeCalledWith({ username, email, password });
+            expect(database.createUser).toBeCalledWith(
+                username,
+                email,
+                password
+            );
         });
 
         it('return 400 when email already exists', async () => {

@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import { auth } from './../middleware/auth.js';
 import { validate } from './../middleware/validator.js';
 import { isMember } from './../middleware/isMember.js';
+import { isLeader } from './../middleware/isLeader.js';
 
 const router = express.Router();
 
@@ -19,6 +20,12 @@ export default function teamRouter(teamController) {
         validate,
     ];
 
+    const validateAdd = [
+        body('title').trim().notEmpty(),
+        body('goal').trim().notEmpty(),
+        validate,
+    ];
+
     router.post('/', auth, validateCreate, teamController.create);
 
     router.get('/', auth, teamController.list);
@@ -26,6 +33,16 @@ export default function teamRouter(teamController) {
     router.post('/join', auth, validateParticapate, teamController.participate);
 
     router.get('/:id', auth, isMember, teamController.retreive);
+
+    router.post(
+        '/:id/projects',
+        auth,
+        isLeader,
+        validateAdd,
+        teamController.add
+    );
+
+    router.get('/:id/projects', auth, isMember, teamController.listOfProjects);
 
     return router;
 }

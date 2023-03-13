@@ -14,11 +14,7 @@ class UserController {
             return res.status(400).json({ detail: 'Email already taken' });
 
         const hashed = await this.hash(password);
-        const result = await this.database.createUser({
-            username,
-            email,
-            password: hashed,
-        });
+        const result = await this.database.createUser(username, email, hashed);
         return res.status(201).json(result);
     };
 

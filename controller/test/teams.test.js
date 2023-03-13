@@ -34,18 +34,14 @@ describe('Team-Controller', () => {
             bcrypt.hash = jest.fn((password, salt) =>
                 Promise.resolve(password)
             );
-            database.createTeam = jest.fn(({ name, password, leaderId }) =>
+            database.createTeam = jest.fn((name, password, leaderId) =>
                 Promise.resolve({ name })
             );
 
             await controller.create(req, res);
 
             expect(bcrypt.hash).toBeCalledWith(password, config.bcrypt.salt);
-            expect(database.createTeam).toBeCalledWith({
-                name,
-                password,
-                leaderId: userId,
-            });
+            expect(database.createTeam).toBeCalledWith(name, password, userId);
             expect(res.statusCode).toBe(201);
         });
     });
@@ -148,6 +144,41 @@ describe('Team-Controller', () => {
 
             expect(res.statusCode).toBe(200);
             expect(database.findById).toBeCalledWith(teamId);
+        });
+    });
+
+    describe('add', () => {
+        it('return 201 & project', async () => {
+            const teamId = +faker.random.numeric();
+            const title = faker.random.alpha(5);
+            const goal = faker.random.alpha(10);
+            const req = httpMocks.createRequest({
+                body: { title, goal },
+                teamId,
+            });
+            const res = httpMocks.createResponse();
+            database.createProject = jest.fn((title, goal, teamId) =>
+                Promise.resolve({})
+            );
+
+            await controller.add(req, res);
+
+            expect(res.statusCode).toBe(201);
+            expect(database.createProject).toBeCalledWith(title, goal, teamId);
+        });
+    });
+
+    describe('listOfProjects', () => {
+        it('return 200', async () => {
+            const teamId = +faker.random.numeric();
+            database.getProjectsById = jest.fn((teamId) => Promise.resolve({}));
+            const req = httpMocks.createRequest({ teamId });
+            const res = httpMocks.createResponse();
+
+            await controller.listOfProjects(req, res);
+
+            expect(res.statusCode).toBe(200);
+            expect(database.getProjectsById).toBeCalledWith(teamId);
         });
     });
 });

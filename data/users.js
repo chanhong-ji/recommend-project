@@ -1,7 +1,10 @@
 import client from './../db/client.js';
 
-export const createUser = async (data) =>
-    client.user.create({ data, select: { id: true } });
+export const createUser = async (username, email, password) =>
+    client.user.create({
+        data: { username, email, password },
+        select: { id: true },
+    });
 
 export const findByEmail = async (email) =>
     client.user.findUnique({

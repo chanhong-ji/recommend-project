@@ -1,8 +1,13 @@
 import client from './../db/client.js';
 
-export const createTeam = async (data) =>
+export const createTeam = async (name, password, leaderId) =>
     client.team.create({
-        data,
+        data: {
+            name,
+            password,
+            leaderId,
+            members: { connect: { id: leaderId } },
+        },
         select: {
             code: true,
             name: true,
@@ -44,6 +49,31 @@ export const findById = async (teamId) =>
         },
     });
 
+export const createProject = async (title, goal, teamId) =>
+    client.project.create({
+        data: {
+            title,
+            goal,
+            teamId,
+        },
+        select: {
+            id: true,
+            title: true,
+            goal: true,
+        },
+    });
+
+export const getProjectsById = async (teamId) =>
+    client.project.findMany({
+        where: {
+            teamId,
+        },
+        select: {
+            id: true,
+            title: true,
+        },
+    });
+
 // Middleware
 export const checkIsMember = async (teamId, userId) =>
     client.user
@@ -54,3 +84,13 @@ export const checkIsMember = async (teamId, userId) =>
             if (result) return true;
             return false;
         });
+
+export const checkIsLeader = async (teamId, userId) =>
+    client.team
+        .count({
+            where: {
+                id: teamId,
+                leaderId: userId,
+            },
+        })
+        .then((result) => !!result);

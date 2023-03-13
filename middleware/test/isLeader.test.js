@@ -1,20 +1,20 @@
 import httpMocks from 'node-mocks-http';
 import { faker } from '@faker-js/faker';
-import { isMember } from './../isMember.js';
+import { isLeader } from './../isLeader.js';
 import * as teamDatabase from '../../data/teams.js';
 import * as projectDatabase from '../../data/projects.js';
 
 jest.mock('../../data/teams.js');
 jest.mock('../../data/projects.js');
 
-describe('Middleware - isMember', () => {
+describe('Middleware - isLeader', () => {
     it('return 404 when params is not numeric', async () => {
         const pathId = faker.random.alpha();
         const req = httpMocks.createRequest({ params: { id: pathId } });
         const res = httpMocks.createResponse();
         next = jest.fn();
 
-        await isMember(req, res, next);
+        await isLeader(req, res, next);
 
         expect(res.statusCode).toBe(404);
         expect(next).not.toBeCalled();
@@ -22,8 +22,8 @@ describe('Middleware - isMember', () => {
 
     describe('path = "/teams"', () => {
         it('retrun 403 when not a member of team', async () => {
-            const pathId = faker.random.numeric(3);
-            const userId = faker.random.numeric(3);
+            const pathId = +faker.random.numeric(3);
+            const userId = +faker.random.numeric(3);
             const req = httpMocks.createRequest({
                 userId,
                 params: { id: pathId },
@@ -31,20 +31,20 @@ describe('Middleware - isMember', () => {
             });
             const res = httpMocks.createResponse();
             const next = jest.fn();
-            teamDatabase.checkIsMember = jest.fn((pathId, userId) =>
+            teamDatabase.checkIsLeader = jest.fn((pathId, userId) =>
                 Promise.resolve(false)
             );
 
-            await isMember(req, res, next);
+            await isLeader(req, res, next);
 
             expect(res.statusCode).toBe(403);
-            expect(teamDatabase.checkIsMember).toBeCalledWith(+pathId, userId);
+            expect(teamDatabase.checkIsLeader).toBeCalledWith(pathId, userId);
             expect(next).not.toBeCalled();
         });
 
         it('pass next', async () => {
-            const pathId = faker.random.numeric(3);
-            const userId = faker.random.numeric(3);
+            const pathId = +faker.random.numeric(3);
+            const userId = +faker.random.numeric(3);
             const req = httpMocks.createRequest({
                 userId,
                 params: { id: pathId },
@@ -52,13 +52,13 @@ describe('Middleware - isMember', () => {
             });
             const res = httpMocks.createResponse();
             const next = jest.fn();
-            teamDatabase.checkIsMember = jest.fn((pathId, userId) =>
+            teamDatabase.checkIsLeader = jest.fn((pathId, userId) =>
                 Promise.resolve(true)
             );
 
-            await isMember(req, res, next);
+            await isLeader(req, res, next);
 
-            expect(req.teamId).toBe(+pathId);
+            expect(req.teamId).toBe(pathId);
             expect(next).toBeCalled();
         });
     });
@@ -74,14 +74,14 @@ describe('Middleware - isMember', () => {
             });
             const res = httpMocks.createResponse();
             const next = jest.fn();
-            projectDatabase.checkIsMember = jest.fn((pathId, userId) =>
+            projectDatabase.checkIsLeader = jest.fn((pathId, userId) =>
                 Promise.resolve(false)
             );
 
-            await isMember(req, res, next);
+            await isLeader(req, res, next);
 
             expect(res.statusCode).toBe(403);
-            expect(projectDatabase.checkIsMember).toBeCalledWith(
+            expect(projectDatabase.checkIsLeader).toBeCalledWith(
                 pathId,
                 userId
             );
@@ -98,11 +98,11 @@ describe('Middleware - isMember', () => {
             });
             const res = httpMocks.createResponse();
             const next = jest.fn();
-            projectDatabase.checkIsMember = jest.fn((pathId, userId) =>
+            projectDatabase.checkIsLeader = jest.fn((pathId, userId) =>
                 Promise.resolve(true)
             );
 
-            await isMember(req, res, next);
+            await isLeader(req, res, next);
 
             expect(req.projectId).toBe(pathId);
             expect(next).toBeCalled();

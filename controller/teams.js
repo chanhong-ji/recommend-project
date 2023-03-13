@@ -11,11 +11,7 @@ class TeamController {
         const { name, password } = req.body;
         const hashed = await this.hash(password);
 
-        const team = await this.database.createTeam({
-            name,
-            password: hashed,
-            leaderId: req.userId,
-        }); // () => code, name
+        const team = await this.database.createTeam(name, hashed, req.userId); // () => code, name
 
         return res.status(201).json(team);
     };
@@ -46,6 +42,26 @@ class TeamController {
     retreive = async (req, res) => {
         const team = await this.database.findById(req.teamId); // () => {members, name}
         return res.status(200).json(team);
+    };
+
+    // add project of team
+    add = async (req, res) => {
+        const { title, goal } = req.body;
+
+        const project = await this.database.createProject(
+            title,
+            goal,
+            req.teamId
+        ); // () => {id, title, goal}
+
+        return res.status(201).json(project);
+    };
+
+    // list of projects which team has
+    listOfProjects = async (req, res) => {
+        const projects = await this.database.getProjectsById(req.teamId); //() => project[]
+
+        return res.status(200).json(projects);
     };
 
     // static

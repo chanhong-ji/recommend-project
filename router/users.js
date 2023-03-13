@@ -37,14 +37,17 @@ export default function userRouter(userController) {
         validate,
     ];
 
-    const validateUpdate = oneOf([
-        body('username')
-            .trim()
-            .isLength({ min: 3 })
-            .withMessage('username should be more than 4'),
-        body('email').trim().isEmail().withMessage('Invalid email format'),
-        body('avatar').trim().isURL(),
-    ]);
+    const validateUpdate = [
+        oneOf([
+            body('username')
+                .trim()
+                .isLength({ min: 3 })
+                .withMessage('username should be more than 4'),
+            body('email').trim().isEmail().withMessage('Invalid email format'),
+            body('avatar').trim().isURL(),
+        ]),
+        validate,
+    ];
 
     router.post('/', validateSignup, userController.signup);
 

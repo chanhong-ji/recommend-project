@@ -22,11 +22,30 @@ model User {
 }
 
 model Team {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique @default(uuid())
-  name      String   @db.VarChar(45)
-  password  String   @db.VarChar(128)
+  id        Int       @id @default(autoincrement())
+  code      String    @unique @default(uuid())
+  name      String    @db.VarChar(45)
+  password  String    @db.VarChar(128)
   members   User[]
+  projects  Project[]
   leaderId  Int
+  createdAt DateTime  @default(now())
+}
+
+model Project {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(128)
+  goal      String
+  team      Team     @relation(fields: [teamId], references: [id])
+  teamId    Int
+  ideas     Idea[]
+  createdAt DateTime @default(now())
+}
+
+model Idea {
+  id        Int      @id @default(autoincrement())
+  text      String
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int
   createdAt DateTime @default(now())
 }
