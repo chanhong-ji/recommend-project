@@ -7,14 +7,17 @@ import userRouter from './router/users.js';
 import teamRouter from './router/teams.js';
 import projectRouter from './router/projects.js';
 import IdeaRouter from './router/ideas.js';
+import commentRouter from './router/comments.js';
 import UserController from './controller/users.js';
 import TeamController from './controller/teams.js';
 import ProjectController from './controller/projects.js';
 import IdeaController from './controller/ideas.js';
+import CommentController from './controller/comments.js';
 import * as userDatabase from './data/users.js';
 import * as teamDatabase from './data/teams.js';
 import * as projectDatabase from './data/projects.js';
 import * as ideaDatabase from './data/ideas.js';
+import * as commentDatabase from './data/comments.js';
 
 export async function startapp() {
     const corsOptions = {
@@ -33,6 +36,7 @@ export async function startapp() {
     app.use('/teams', teamRouter(new TeamController(teamDatabase)));
     app.use('/projects', projectRouter(new ProjectController(projectDatabase)));
     app.use('/ideas', IdeaRouter(new IdeaController(ideaDatabase)));
+    app.use('/comments', commentRouter(new CommentController(commentDatabase)));
 
     app.use((error, req, res, next) => {
         console.error(error);

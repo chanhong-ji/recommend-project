@@ -79,12 +79,21 @@ describe('Controller - ideas', () => {
 
         it('return 201', async () => {
             const req = httpMocks.createRequest({ params: { id }, userId });
-            database.createLike = jest.fn((id, userId) => Promise.resolve());
+            database.createLike = jest.fn((id, userId) => Promise.resolve(1));
 
             await controller.createLike(req, res);
 
             expect(res.statusCode).toBe(201);
             expect(database.createLike).toBeCalledWith(id, userId);
+        });
+
+        it('return 400 when like already done', async () => {
+            const req = httpMocks.createRequest({ params: { id }, userId });
+            database.createLike = jest.fn((id, userId) => Promise.resolve(0));
+
+            await controller.createLike(req, res);
+
+            expect(res.statusCode).toBe(400);
         });
     });
 });

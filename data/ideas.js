@@ -27,9 +27,22 @@ export const createComment = async (ideaId, ownerId, text) =>
     });
 
 export const createLike = async (ideaId, userId) =>
-    client.like.create({
-        data: {
-            ideaId,
-            userId,
-        },
-    });
+    client.like
+        .count({
+            where: {
+                ideaId,
+                userId,
+            },
+        })
+        .then(async (result) => {
+            console.log(result, ': count of like ');
+            if (result > 0) return 0;
+            return client.like
+                .create({
+                    data: {
+                        ideaId,
+                        userId,
+                    },
+                })
+                .then(() => 1);
+        });
