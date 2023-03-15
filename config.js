@@ -21,4 +21,7 @@ export const config = {
         secret: required('JWT_SECRET'),
         expiresInSec: required('JWT_EXPIRES_IN_SEC', 60 * 60 * 24 * 3),
     },
+    csrf: {
+        plainToken: required('CSRF_PLAIN'),
+    },
 };

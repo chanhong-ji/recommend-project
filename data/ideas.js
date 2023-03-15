@@ -35,7 +35,6 @@ export const createLike = async (ideaId, userId) =>
             },
         })
         .then(async (result) => {
-            console.log(result, ': count of like ');
             if (result > 0) return 0;
             return client.like
                 .create({

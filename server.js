@@ -2,7 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { config } from './config.js';
+import { csrfCheck } from './middleware/csrf.js';
 import userRouter from './router/users.js';
 import teamRouter from './router/teams.js';
 import projectRouter from './router/projects.js';
@@ -21,6 +23,7 @@ import * as commentDatabase from './data/comments.js';
 
 export async function startapp() {
     const corsOptions = {
+        origin: config.cors.allowedOrigin,
         credentials: true,
     };
 
@@ -30,8 +33,12 @@ export async function startapp() {
     app.use(helmet());
     app.use(morgan('dev'));
     app.use(express.urlencoded({ extended: true }));
+    app.use(cookieParser());
 
-    // routers
+    // Middleware
+    app.use(csrfCheck);
+
+    // Routers
     app.use('/users', userRouter(new UserController(userDatabase)));
     app.use('/teams', teamRouter(new TeamController(teamDatabase)));
     app.use('/projects', projectRouter(new ProjectController(projectDatabase)));

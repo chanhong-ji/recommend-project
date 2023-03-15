@@ -2,7 +2,8 @@ import httpMocks from 'node-mocks-http';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import UserController from '../users';
+import UserController from '../users.js';
+import { config } from './../../config.js';
 
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
@@ -98,6 +99,7 @@ describe('User Controller', () => {
 
             expect(res.statusCode).toBe(200);
             expect(res._getJSONData()).toEqual({ token });
+            expect(res.cookies['token'].value).toBe(token);
         });
     });
 
@@ -212,6 +214,31 @@ describe('User Controller', () => {
             await userController.profile(req, res);
 
             expect(res.statusCode).toBe(404);
+        });
+    });
+
+    describe('logout', () => {
+        it('return 200', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+
+            await userController.logout(req, res);
+
+            expect(res.cookies['token'].value).toBe('');
+            expect(res.statusCode).toBe(200);
+        });
+    });
+
+    describe('csrfToken', () => {
+        it('return 200 & csrfToken', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            bcrypt.hash = jest.fn((token, salt) => {});
+
+            await userController.csrfToken(req, res);
+
+            expect(res.statusCode).toBe(200);
+            expect(bcrypt.hash).toBeCalledWith(config.csrf.plainToken, 1);
         });
     });
 });

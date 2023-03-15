@@ -31,6 +31,7 @@ class UserController {
         }
 
         const token = this.createJwtToken(user.id);
+        this.setToken(res, token);
         return res.status(200).json({ token });
     };
 
@@ -74,10 +75,36 @@ class UserController {
         return res.status(200).json(user);
     };
 
+    logout = async (req, res) => {
+        res.cookie('token', '');
+        return res.status(200).json({ detail: 'User logged out' });
+    };
+
+    csrfToken = async (req, res) => {
+        const csrfToken = await this.generateCSRFToken();
+        return res.status(200).json({ csrfToken });
+    };
+
+    // STATIC
     createJwtToken = (id) => {
         return jwt.sign({ id }, config.jwt.secret, {
             expiresIn: config.jwt.expiresInSec,
         });
+    };
+
+    setToken = (res, token) => {
+        const options = {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+            maxAge: config.jwt.expiresInSec * 1000,
+        };
+
+        res.cookie('token', token, options);
+    };
+
+    generateCSRFToken = () => {
+        return bcrypt.hash(config.csrf.plainToken, 1);
     };
 }
 

@@ -57,6 +57,10 @@ export default function userRouter(userController) {
 
     router.post('/edit', auth, validateUpdate, userController.update);
 
+    router.get('/csrf-token', userController.csrfToken);
+
+    router.get('/logout', userController.logout);
+
     router.get('/:id', userController.profile);
 
     return router;

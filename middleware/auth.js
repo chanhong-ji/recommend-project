@@ -9,11 +9,21 @@ export const auth = async (req, res, next) => {
         headers: { authorization },
     } = req;
 
-    if (!authorization || !authorization.startsWith('Bearer')) {
-        return res.status(401).json({ detail: AUTHENTICATION_ERROR });
+    let token;
+
+    // Token authorization
+    if (authorization && authorization.startsWith('Bearer')) {
+        token = authorization.split(' ')[1];
     }
 
-    const token = authorization.split(' ')[1];
+    // If no token in header, check browser cookies
+    if (!token) {
+        token = req.cookies['token'];
+    }
+
+    if (!token) {
+        return res.status(401).json({ detail: AUTHENTICATION_ERROR });
+    }
 
     jwt.verify(token, config.jwt.secret, async (error, decoded) => {
         if (error) {
