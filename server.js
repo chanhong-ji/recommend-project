@@ -56,7 +56,7 @@ export async function startapp() {
     return server;
 }
 
-function stopapp(server) {
+export function stopapp(server) {
     return new Promise((resolve, reject) => {
         server.close(async () => {
             try {
