@@ -8,17 +8,17 @@ export const isLeader = async (req, res, next) => {
     } = req;
 
     if (baseUrl === '/teams') {
-        checkIsLeaderOfTeam(+id, req.userId).then((check) => {
+        checkIsLeaderOfTeam(id, req.userId).then((check) => {
             if (!check)
                 return res.status(403).json({ detail: 'Permission denied' });
-            req.teamId = +id;
+            req.teamId = id;
             next();
         });
     } else if (baseUrl === '/projects') {
-        checkIsLeaderOfProject(+id, req.userId).then((check) => {
+        checkIsLeaderOfProject(id, req.userId).then((check) => {
             if (!check)
                 return res.status(403).json({ detail: 'Permission denied' });
-            req.projectId = +id;
+            req.projectId = id;
             next();
         });
     }

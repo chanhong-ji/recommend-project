@@ -44,8 +44,8 @@ class TeamController {
         return res.status(200).json(team);
     };
 
-    // add project of team
-    add = async (req, res) => {
+    // create project of team
+    createProject = async (req, res) => {
         const { title, goal } = req.body;
 
         const project = await this.database.createProject(
@@ -58,7 +58,7 @@ class TeamController {
     };
 
     // list of projects which team has
-    listOfProjects = async (req, res) => {
+    getProjects = async (req, res) => {
         const projects = await this.database.getProjectsById(req.teamId); //() => project[]
 
         return res.status(200).json(projects);

@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 export const validate = (req, res, next) => {
     const result = validationResult(req);
 
-    if (result.errors.length == 0) {
+    if (result.errors.length === 0) {
         return next();
     }
 

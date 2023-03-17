@@ -161,21 +161,21 @@ describe('Team-Controller', () => {
                 Promise.resolve({})
             );
 
-            await controller.add(req, res);
+            await controller.createProject(req, res);
 
             expect(res.statusCode).toBe(201);
             expect(database.createProject).toBeCalledWith(title, goal, teamId);
         });
     });
 
-    describe('listOfProjects', () => {
+    describe('getProjects', () => {
         it('return 200', async () => {
             const teamId = +faker.random.numeric();
             database.getProjectsById = jest.fn((teamId) => Promise.resolve({}));
             const req = httpMocks.createRequest({ teamId });
             const res = httpMocks.createResponse();
 
-            await controller.listOfProjects(req, res);
+            await controller.getProjects(req, res);
 
             expect(res.statusCode).toBe(200);
             expect(database.getProjectsById).toBeCalledWith(teamId);

@@ -6,6 +6,7 @@ export const createUser = async (username, email, password) =>
         select: { id: true },
     });
 
+// for authentication
 export const findByEmail = async (email) =>
     client.user.findUnique({
         where: {
@@ -24,9 +25,13 @@ export const findById = async (id) =>
     });
 
 export const updateById = async (userId, data) =>
-    client.user
-        .update({
-            where: { id: userId },
-            data,
-        })
-        .catch((error) => 'error');
+    client.user.update({
+        where: { id: userId },
+        select: {
+            id: true,
+            email: true,
+            username: true,
+            avatar: true,
+        },
+        data,
+    });

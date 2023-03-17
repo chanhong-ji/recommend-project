@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, oneOf } from 'express-validator';
+import { body, oneOf, param } from 'express-validator';
 import { auth } from '../middleware/auth.js';
 import { validate } from './../middleware/validator.js';
 
@@ -26,7 +26,7 @@ export default function userRouter(userController) {
             .trim()
             .notEmpty()
             .withMessage('Email is required')
-            .isEmail()
+            .isEmail({ min: 5 })
             .withMessage('Invalid email format'),
         body('password')
             .trim()
@@ -49,6 +49,8 @@ export default function userRouter(userController) {
         validate,
     ];
 
+    const validateProfile = [param('id').toInt()];
+
     router.post('/', validateSignup, userController.signup);
 
     router.post('/login', validateLogin, userController.login);
@@ -61,7 +63,7 @@ export default function userRouter(userController) {
 
     router.get('/logout', userController.logout);
 
-    router.get('/:id', userController.profile);
+    router.get('/:id', validateProfile, userController.profile);
 
     return router;
 }

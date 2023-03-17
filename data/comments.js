@@ -19,3 +19,9 @@ export const createLike = async (commentId, userId) =>
                 })
                 .then(() => 1);
         });
+
+// Middleware
+export const findById = (commentId) =>
+    client.comment.count({
+        where: { id: commentId },
+    });

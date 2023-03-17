@@ -37,7 +37,7 @@ model Team {
 model Project {
   id        Int      @id @default(autoincrement())
   title     String   @db.VarChar(128)
-  goal      String
+  goal      String?
   team      Team     @relation(fields: [teamId], references: [id])
   teamId    Int
   ideas     Idea[]

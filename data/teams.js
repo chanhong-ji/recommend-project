@@ -9,6 +9,7 @@ export const createTeam = async (name, password, leaderId) =>
             members: { connect: { id: leaderId } },
         },
         select: {
+            id: true,
             code: true,
             name: true,
         },

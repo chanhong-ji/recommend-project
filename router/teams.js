@@ -20,9 +20,9 @@ export default function teamRouter(teamController) {
         validate,
     ];
 
-    const validateAdd = [
+    const validateCreateProject = [
         body('title').trim().notEmpty(),
-        body('goal').trim().notEmpty(),
+        body('goal').trim(),
         validate,
     ];
 
@@ -38,10 +38,11 @@ export default function teamRouter(teamController) {
 
     router.post(
         '/:id/projects',
+        validateParams,
         auth,
         isLeader,
-        validateAdd,
-        teamController.add
+        validateCreateProject,
+        teamController.createProject
     );
 
     router.get(
@@ -49,7 +50,7 @@ export default function teamRouter(teamController) {
         validateParams,
         auth,
         isMember,
-        teamController.listOfProjects
+        teamController.getProjects
     );
 
     return router;

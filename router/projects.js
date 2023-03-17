@@ -8,10 +8,7 @@ import { isLeader } from './../middleware/isLeader.js';
 const router = express.Router();
 
 export default function projectRouter(projectController) {
-    const validateRetrieve = [param('id').toInt(), validate];
-
     const validateUpdate = [
-        query('id').toInt(),
         oneOf([
             body('title').trim().notEmpty(),
             body('goal').trim().notEmpty(),
@@ -19,17 +16,15 @@ export default function projectRouter(projectController) {
         validate,
     ];
 
-    const validateCreateIdea = [
-        param('id').toInt(),
-        body('text').trim().notEmpty(),
-        validate,
-    ];
+    const validateCreateIdea = [body('text').trim().notEmpty(), validate];
 
-    const validateGetIdeas = [param('id').toInt(), query('page').toInt()];
+    const validateGetIdeas = [query('page').toInt(), validate];
+
+    const validateParams = [param('id').toInt(), validate];
 
     router.get(
         '/:id',
-        validateRetrieve,
+        validateParams,
         auth,
         isMember,
         projectController.retrieve
@@ -37,25 +32,28 @@ export default function projectRouter(projectController) {
 
     router.patch(
         '/:id',
-        validateUpdate,
+        validateParams,
         auth,
         isLeader,
+        validateUpdate,
         projectController.update
     );
 
     router.post(
         '/:id/ideas',
-        validateCreateIdea,
+        validateParams,
         auth,
         isMember,
+        validateCreateIdea,
         projectController.createIdea
     );
 
     router.get(
         '/:id/ideas',
-        validateGetIdeas,
+        validateParams,
         auth,
         isMember,
+        validateGetIdeas,
         projectController.getIdeas
     );
 

@@ -45,3 +45,9 @@ export const createLike = async (ideaId, userId) =>
                 })
                 .then(() => 1);
         });
+
+// Middleware
+export const findById = (ideaId) =>
+    client.idea.count({
+        where: { id: ideaId },
+    });

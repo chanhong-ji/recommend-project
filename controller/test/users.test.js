@@ -53,7 +53,7 @@ describe('User Controller', () => {
 
             await userController.signup(req, res);
 
-            expect(res.statusCode).toBe(400);
+            expect(res.statusCode).toBe(409);
         });
     });
 
@@ -153,15 +153,7 @@ describe('User Controller', () => {
             expect(updateById).toBeCalledWith(userId, { username });
         });
 
-        it('return 500 when database returns 0', async () => {
-            database.updateById = () => 'error';
-
-            await userController.update(req, res);
-
-            expect(res.statusCode).toBe(500);
-        });
-
-        it('return 400 when email already taken', async () => {
+        it('return 409 when email already taken', async () => {
             req = httpMocks.createRequest({ body: { email } });
             const findByEmail = jest.fn(() => Promise.resolve({ email }));
             database.findByEmail = findByEmail;
@@ -169,7 +161,7 @@ describe('User Controller', () => {
             await userController.update(req, res);
 
             expect(findByEmail).toBeCalled();
-            expect(res.statusCode).toBe(400);
+            expect(res.statusCode).toBe(409);
             expect(res._getJSONData()).toEqual({
                 detail: 'Email already taken',
             });
@@ -181,20 +173,9 @@ describe('User Controller', () => {
         let id;
 
         beforeEach(() => {
-            id = faker.random.numeric(3);
+            id = +faker.random.numeric(3);
             req = httpMocks.createRequest({ params: { id } });
             res = httpMocks.createResponse();
-        });
-
-        it('return 400 when id is not a number', async () => {
-            id = faker.random.alpha(3);
-            req = httpMocks.createRequest({ params: { id } });
-            res = httpMocks.createResponse();
-
-            await userController.profile(req, res);
-
-            expect(res.statusCode).toBe(400);
-            expect(res._getJSONData()).toEqual({ detail: 'Wrong access' });
         });
 
         it('return 200', async () => {
@@ -203,9 +184,9 @@ describe('User Controller', () => {
 
             await userController.profile(req, res);
 
-            expect(findById).toBeCalledWith(+id);
+            expect(findById).toBeCalledWith(id);
             expect(res.statusCode).toBe(200);
-            expect(res._getJSONData()).toEqual({ id: +id });
+            expect(res._getJSONData()).toEqual({ id });
         });
 
         it('return 404 when user not found', async () => {

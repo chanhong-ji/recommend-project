@@ -2,42 +2,40 @@ import express from 'express';
 import { body, param, query } from 'express-validator';
 import { auth } from './../middleware/auth.js';
 import { validate } from './../middleware/validator.js';
+import { isFound } from './../middleware/isFound.js';
 
 const router = express.Router();
 
 export default function IdeaRouter(IdeaController) {
-    const validateGetComment = [
-        param('id').toInt(),
-        query('page').toInt(),
-        validate,
-    ];
+    const validateGetComment = [query('page').toInt(), validate];
 
-    const validateCreateComment = [
-        param('id').toInt(),
-        body('text').trim().notEmpty(),
-        validate,
-    ];
+    const validateCreateComment = [body('text').trim().notEmpty(), validate];
 
-    const validateCreateLike = [param('id').toInt(), validate];
+    const validateParams = [param('id').toInt(), validate];
 
     router.get(
         '/:id/comments',
+        validateParams,
         validateGetComment,
         auth,
+        isFound,
         IdeaController.getComments
     );
 
     router.post(
         '/:id/comments',
-        validateCreateComment,
+        validateParams,
         auth,
+        isFound,
+        validateCreateComment,
         IdeaController.createComment
     );
 
     router.post(
         '/:id/likes',
-        validateCreateLike,
+        validateParams,
         auth,
+        isFound,
         IdeaController.createLike
     );
 

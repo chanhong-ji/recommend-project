@@ -11,7 +11,7 @@ class UserController {
         const { username, email, password } = req.body;
         const user = await this.database.findByEmail(email);
         if (user)
-            return res.status(400).json({ detail: 'Email already taken' });
+            return res.status(409).json({ detail: 'Email already taken' });
 
         const hashed = await this.hash(password);
         const result = await this.database.createUser(username, email, hashed);
@@ -53,23 +53,17 @@ class UserController {
         if (data.email) {
             const user = this.database.findByEmail(data.email);
             if (user)
-                return res.status(400).json({ detail: 'Email already taken' });
+                return res.status(409).json({ detail: 'Email already taken' });
         }
-        // return 1, if something has changed
-        const result = await this.database.updateById(req.userId, data);
 
-        if (result == 'error') return res.sendStatus(500);
-        return res.sendStatus(200);
+        const user = await this.database.updateById(req.userId, data);
+        return res.status(200).json(user);
     };
 
     profile = async (req, res) => {
-        const {
-            params: { id },
-        } = req;
+        const { id } = req.params;
 
-        if (isNaN(id)) return res.status(400).json({ detail: 'Wrong access' });
-
-        const user = await this.database.findById(+id);
+        const user = await this.database.findById(id);
         if (!user) return res.status(404).json({ detail: 'User not found' });
 
         return res.status(200).json(user);
