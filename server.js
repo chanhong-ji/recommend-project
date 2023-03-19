@@ -20,8 +20,11 @@ import * as teamDatabase from './data/teams.js';
 import * as projectDatabase from './data/projects.js';
 import * as ideaDatabase from './data/ideas.js';
 import * as commentDatabase from './data/comments.js';
+import swaggerUI from 'swagger-ui-express';
+import yaml from 'yamljs';
 
 export async function startapp() {
+    const openAPIDocument = yaml.load('./api/openapi.yaml');
     const corsOptions = {
         origin: config.cors.allowedOrigin,
         credentials: true,
@@ -39,6 +42,7 @@ export async function startapp() {
     app.use(csrfCheck);
 
     // Routers
+    app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(openAPIDocument));
     app.use('/users', userRouter(new UserController(userDatabase)));
     app.use('/teams', teamRouter(new TeamController(teamDatabase)));
     app.use('/projects', projectRouter(new ProjectController(projectDatabase)));

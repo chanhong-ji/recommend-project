@@ -1,0 +1,1125 @@
+openapi: 3.0.0
+info:
+    description: This is Idea API service.
+    version: 1.0.0
+    title: Idea Share
+tags:
+    - name: users
+      description: Methods to handle authentication
+    - name: teams
+      description: Methods to access and manage teams
+    - name: projects
+      description: Methods to access and manage projects
+    - name: ideas
+      description: Methods to access and manage ideas
+    - name: comments
+      description: Methods to access and manage comments
+
+paths:
+    # User
+    /users/csrf-token:
+        get:
+            tags:
+                - users
+            summary: Get csrf token for authentication
+            description: Get csrf token for authentication when a user access the domain
+            operationId: csrfToken
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    csrfToken:
+                                        type: string
+    /users:
+        post:
+            security:
+                - csrf_auth: []
+            tags:
+                - users
+            summary: Signs up a user to the Idea Share service
+            description: Creates a user account for the given user details
+            operationId: signup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                username:
+                                    type: string
+                                    example: 'johndoe'
+                                email:
+                                    type: string
+                                    example: 'john.doe@gmail.com'
+                                password:
+                                    type: string
+                                    example: 'password'
+
+                required: true
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: string
+                                example:
+                                    id:
+                                        type: 1
+                '409':
+                    description: Conflict
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'Email already exist'
+    /users/login:
+        post:
+            security:
+                - csrf_auth: []
+            tags:
+                - users
+            summary: Log in a user to the Idea Share service
+            description: Login a user account for the given user details
+            operationId: login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    example: 'john.doe@gmail.com'
+                                password:
+                                    type: string
+                                    example: 'password'
+                required: true
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    token:
+                                        type: string
+                '400':
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'Password wrong'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'User not found'
+    /users/me:
+        get:
+            tags:
+                - users
+            summary: Get the user identifier.
+            description: Get the user identifier
+            operationId: me
+            security:
+                - jwt_auth: []
+
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: interger
+                                        example: 1
+                                    username:
+                                        type: string
+                                        example: 'johndoe'
+                                    avatar:
+                                        type: string
+                                        example: 'exampleurl'
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'User not found'
+    /users/edit:
+        post:
+            security:
+                - csrf_auth: []
+                  jwt_auth: []
+            tags:
+                - users
+            summary: Update user information
+            description: Update user information
+            operationId: updateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                username:
+                                    type: string
+                                    example: 'jane'
+                                email:
+                                    type: string
+                                    example: 'jane.doe@gmail.com'
+                                avatar:
+                                    type: string
+                                    example: 'exampleurl'
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    descrition: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: Email already taken
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '409':
+                    description: Conflict
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: Email already taken
+    /users/logout:
+        get:
+            tags:
+                - users
+            summary: Log out a user from the Idea Share service
+            description: Log out a user from the Idea Share service with clearing cookie
+            operationId: logout
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    detail:
+                                        type: string
+                                        example: 'User logged out'
+    /users/{userId}:
+        get:
+            tags:
+                - users
+            parameters:
+                - in: path
+                  name: userId
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the user to get
+            summary: Get profile of the user
+            description: Get profile of the user by userId
+            operationId: profile
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: interger
+                                        example: 1
+                                    username:
+                                        type: string
+                                        example: 'johndoe'
+                                    avatar:
+                                        type: string
+                                        example: 'exampleurl'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'User not found'
+
+    # Team
+    /teams:
+        post:
+            security:
+                - csrf_auth: []
+                  jwt_auth: []
+            tags:
+                - teams
+            summary: Create a new team
+            description: Create a new team and be a leader of the team
+            operationId: createTeam
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                    example: 'newCreatedTeam'
+                                    description: name of the new team
+                                password:
+                                    type: string
+                                    example: 'password'
+                                    description: password needed to be a member of the team
+                            required:
+                                - name
+                                - password
+                required: true
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: interger
+                                        example: 1
+                                    code:
+                                        type: string
+                                        example: '1d56d3df-fdd4-4a0d-abb2-77e4f6e3e37f'
+                                    name:
+                                        type: string
+                                        example: 'newCreatedTeam'
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+        get:
+            security:
+                - jwt_auth: []
+            tags:
+                - teams
+            summary: Get list of teams which the user has participated in
+            description: Get list of teams which the user has participated in
+            operationId: teamList
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                description: Array of teams
+                                items:
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: interger
+                                        name:
+                                            type: string
+                                example:
+                                    [
+                                        { id: 1, name: 'firstTeam' },
+                                        { id: 2, name: 'secondTeam' },
+                                    ]
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+    /teams/join:
+        post:
+            security:
+                - csrf_auth: []
+                  jwt_auth: []
+            tags:
+                - teams
+            summary: Get users to join the team
+            description: Get users to join the team with code and password
+            operationId: participate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                code:
+                                    type: string
+                                    example: '1d56d3df-fdd4-4a0d-abb2-77e4f6e3e37f'
+                                password:
+                                    type: string
+                                    example: 'password'
+                            required:
+                                - code
+                                - password
+                required: true
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    teamId:
+                                        type: interger
+                                        example: '1'
+                # 특수하게 패스워트 롱이야 이거 바꾸자
+                '410':
+                    description: Unauthorized
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'Password Wrong'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'Team not found'
+    /teams/{teamId}:
+        get:
+            security:
+                - jwt_auth: []
+            tags:
+                - teams
+            parameters:
+                - in: path
+                  name: teamId
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the team to get
+            summary: Get team data including members
+            description:
+            operationId: teamRetreive
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    name:
+                                        type: string
+                                        example: 'firstTeam'
+                                    members:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                id:
+                                                    type: interger
+                                                username:
+                                                    type: string
+                                                avatar:
+                                                    type: string
+                                        example:
+                                            [
+                                                {
+                                                    id: 1,
+                                                    username: 'johndoe',
+                                                    avatar: 'exampleurl',
+                                                },
+                                                {
+                                                    id: 2,
+                                                    username: 'janedoe',
+                                                    avatar: 'exampleurl',
+                                                },
+                                            ]
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#/components/responses/ForbiddenError'
+    /teams/{teamId}/projects:
+        post:
+            security:
+                - csrf_auth: []
+                  jwt_auth: []
+            tags:
+                - teams
+            summary: Add a new project into team
+            description: Add a new project into team
+            operationId: addProject
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                title:
+                                    type: string
+                                    example: 'firstProject'
+                                goal:
+                                    type: string
+                                    example: 'goal for first project'
+                            required:
+                                - title
+                required: true
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: interger
+                                        example: 1
+                                    title:
+                                        type: string
+                                        example: 'first project'
+                                    goal:
+                                        type: string
+                                        example: 'goal for first project'
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#/components/responses/ForbiddenError'
+        get:
+            security:
+                - jwt_auth: []
+            tags:
+                - teams
+            parameters:
+                - in: path
+                  name: teamId
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the team to get
+            summary: Get list of projects created by the team
+            description: Get list of projects created by the team
+            operationId: getProjects
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: interger
+                                        title:
+                                            type: string
+                                example:
+                                    [
+                                        { id: 1, title: 'first project' },
+                                        { id: 2, title: 'second project ' },
+                                    ]
+
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#/components/responses/ForbiddenError'
+
+    # Project
+    /projects/{projectId}:
+        get:
+            security:
+                - jwt_auth: []
+            tags:
+                - projects
+            parameters:
+                - in: path
+                  name: projectId
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the project to get
+            summary: Get project information
+            description: Get project information
+            operationId: projectRetrieve
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: interger
+                                        example: 1
+                                    title:
+                                        type: string
+                                        example: 'firstProject'
+                                    goal:
+                                        type: string
+                                        example: 'goal for first project'
+                                    teamId:
+                                        type: interger
+                                        example: 1
+                                    createdAt:
+                                        type: string
+                                        format: date-time
+                                        description: Creation date
+                                        example: '2023-01-30T08:30:20.000Z'
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#/components/responses/ForbiddenError'
+        patch:
+            security:
+                - jwt_auth: []
+            tags:
+                - projects
+            parameters:
+                - in: path
+                  name: projectId
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the project to update
+            summary: Update project information
+            description: Update project information
+            operationId: updateProject
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                title:
+                                    type: string
+                                    example: 'newTitle'
+                                    description: 'new title for project'
+                                goal:
+                                    type: string
+                                    example: 'newGoal'
+                                    description: 'new goal for project'
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: interger
+                                        example: 1 #해당 값을 변수로 설정할 수 있나?
+                                    title:
+                                        type: string
+                                        example: 'newTitle'
+                                    goal:
+                                        type: string
+                                        example: 'newGoal'
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#/components/responses/ForbiddenError'
+    /projects/{projectId}/ideas:
+        post:
+            security:
+                - csrf_auth: []
+                  jwt_auth: []
+            tags:
+                - projects
+            parameters:
+                - in: path
+                  name: projectId
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the project to get
+            summary: Create a ideas of the project
+            description: Create a ideas of the project
+            operationId: createIdea
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                text:
+                                    type: string
+                                    example: 'new idea for the project'
+                            required:
+                                - text
+                required: true
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: interger
+                                        example: 1
+                                    text:
+                                        type: string
+                                        example: 'firstIdea'
+                                    projectId:
+                                        type: interger
+                                        example: 1
+                                    createdAt:
+                                        type: string
+                                        format: date-time
+                                        description: Creation date
+                                        example: '2023-01-30T08:30:20.000Z'
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#/components/responses/ForbiddenError'
+        get:
+            security:
+                - jwt_auth: []
+            tags:
+                - projects
+            parameters:
+                - in: path
+                  name: projectId
+                  schema:
+                      type: interger
+                  required: true
+                - in: query
+                  name: page
+                  schema:
+                      type: interger
+                  required: false
+                  description: Numeric ID of the project to get
+            summary: Get list of ideas of the project
+            description: Get list of ideas of the project per page, sorted by number of likess
+            operationId: getIdeas
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    properties:
+                                        id:
+                                            type: interger
+                                        text:
+                                            type: string
+                                        createdAt:
+                                            type: string
+                                            format: date-time
+                                            description: Creation date
+                                            example: '2023-01-30T08:30:20.000Z'
+                                        _count:
+                                            type: object
+                                            properties:
+                                                likes:
+                                                    type: interger
+                                example:
+                                    [
+                                        {
+                                            id: 1,
+                                            text: 'firstIdea',
+                                            createdAt: '2023-01-30T08:30:20.000Z',
+                                            _count: { likes: 99 },
+                                        },
+                                        {
+                                            id: 2,
+                                            text: 'secondIdea',
+                                            createdAt: '2023-01-30T08:30:20.000Z',
+                                            _count: { likes: 33 },
+                                        },
+                                    ]
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#/components/responses/ForbiddenError'
+
+    # Idea
+    /ideas/{ideaId}/comments:
+        get:
+            security:
+                - jwt_auth: []
+            tags:
+                - ideas
+            parameters:
+                - in: path
+                  name: ideaId
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the idea to get
+            summary: Get comments of the idea
+            description: Get comments of the idea per page, sorted by the number of likes
+            operationId: getComments
+
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: interger
+                                        text:
+                                            type: string
+                                        ideaId:
+                                            type: interger
+                                        ownerId:
+                                            type: interger
+                                        _count:
+                                            type: object
+                                            properties:
+                                                likes:
+                                                    type: interger
+                                example:
+                                    [
+                                        {
+                                            id: 1,
+                                            text: 'first comment',
+                                            ideaId: 1,
+                                            ownerId: 1,
+                                            _count: { likes: 44 },
+                                        },
+                                        {
+                                            id: 3,
+                                            text: 'third comment',
+                                            ideaId: 1,
+                                            ownerId: 3,
+                                            _count: { likes: 22 },
+                                        },
+                                        {
+                                            id: 2,
+                                            text: 'second comment',
+                                            ideaId: 1,
+                                            ownerId: 2,
+                                            _count: { likes: 11 },
+                                        },
+                                    ]
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'Comment not found'
+        post:
+            security:
+                - csrf_auth: []
+                  jwt_auth: []
+            tags:
+                - ideas
+            parameters:
+                - in: path
+                  name: ideaId
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the idea to get
+            summary: Create a comment for the idea
+            description: Create a comment for the idea
+            operationId: createComment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                text:
+                                    type: string
+                                    example: 'first comment for the idea'
+                            required:
+                                - text
+                required: true
+            responses:
+                '201':
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id:
+                                        type: interger
+                                        example: 1
+                                    text:
+                                        type: string
+                                        example: 'first comment'
+                                    ideaId:
+                                        type: interger
+                                        example: 1 #맞출수있나 확인
+                                    ownerId:
+                                        type: interger
+                                        example: 1
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'Idea not found'
+    /ideas/{ideaId}/likes:
+        post:
+            security:
+                - csrf_auth: []
+                  jwt_auth: []
+            tags:
+                - ideas
+            parameters:
+                - in: path
+                  name: ideaId
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the idea to get
+            summary: Create a like for the idea
+            description: Create a like for the idea
+            operationId: createLikeOnIdea
+            responses:
+                '201':
+                    description: Created
+                '400':
+                    descrition: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: already done
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'Idea not found'
+
+    # Comment
+    /comments/{commentId}/likes:
+        post:
+            security:
+                - csrf_auth: []
+                  jwt_auth: []
+            tags:
+                - comments
+            parameters:
+                - in: path
+                  name:
+                  schema:
+                      type: interger
+                  required: true
+                  description: Numeric ID of the comment to get
+            summary: Create a like for the comment
+            description: Create a like for the comment
+            operationId: createLikeOnComment
+            responses:
+                '201':
+                    description: Created
+                '400':
+                    descrition: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: already done
+                '401':
+                    $ref: '#/components/responses/UnauthorizedError'
+                '404': #
+                    description: Not Found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorApiResponse'
+                            example:
+                                detail: 'Comment not found'
+
+components:
+    # schemas
+    schemas:
+        User:
+            type: object
+            properties:
+                id:
+                    type: interger
+                email:
+                    type: string
+                username:
+                    type: string
+                password:
+                    type: string
+                avatar:
+                    format: url
+                    nullable: true
+            required:
+                - id
+                - email
+                - username
+                - password
+        Team:
+            type: object
+            properties:
+                id:
+                    type: interger
+                code:
+                    type: string
+                name:
+                    type: string
+                password:
+                    type: string
+                leaderId:
+                    type: interger
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Creation date
+                    example: '2023-01-30T08:30:20.000Z'
+            required:
+                - id
+                - code
+                - name
+                - password
+                - leaderId
+        Project:
+            properties:
+                id:
+                    type: interger
+                title:
+                    type: string
+                goal:
+                    type: string
+                teamId:
+                    type: interger
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Creation date
+                    example: '2023-01-30T08:30:20.000Z'
+            required:
+                - id
+                - title
+                - teamId
+        Idea:
+            properties:
+                id:
+                    type: interger
+                text:
+                    type: string
+                projectId:
+                    type: interger
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Creation date
+                    example: '2023-01-30T08:30:20.000Z'
+            required:
+                - id
+                - text
+                - projectId
+        Comment:
+            properties:
+                id:
+                    type: interger
+                text:
+                    type: string
+                ideaId:
+                    type: interger
+                ownerId:
+                    type: interger
+            required:
+                - id
+                - text
+                - ideaId
+                - ownerId
+        Like:
+            properties:
+                id:
+                    type: interger
+                userId:
+                    type: interger
+                commentId:
+                    type: interger
+                ideaId:
+                    type: interger
+            required:
+                - id
+                - userId
+
+        ErrorApiResponse:
+            type: object
+            properties:
+                detail:
+                    type: string
+            example:
+                detail: 'Something went wrong'
+
+    # security
+    securitySchemes:
+        jwt_auth:
+            description: Bearer token authorization with JWT. Get by login.
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+            # in
+
+        csrf_auth:
+            type: apiKey
+            in: header
+            name: csrf-token
+            description: CSRF token authorization. Get by csrf-token request.
+            bearerFormat: csrf-token
+
+    # reponses
+    responses:
+        UnauthorizedError:
+            description: Unauthorized (auth token is missing or invalid)
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorApiResponse'
+                    example:
+                        detail: 'Authentication error'
+
+        ForbiddenError:
+            description: Forbidden
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorApiResponse'
+                    example:
+                        detail: 'Permission denied'
