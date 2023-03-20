@@ -3,6 +3,8 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import swaggerUI from 'swagger-ui-express';
+import yaml from 'yamljs';
 import { config } from './config.js';
 import { csrfCheck } from './middleware/csrf.js';
 import userRouter from './router/users.js';
@@ -20,8 +22,6 @@ import * as teamDatabase from './data/teams.js';
 import * as projectDatabase from './data/projects.js';
 import * as ideaDatabase from './data/ideas.js';
 import * as commentDatabase from './data/comments.js';
-import swaggerUI from 'swagger-ui-express';
-import yaml from 'yamljs';
 
 export async function startapp() {
     const openAPIDocument = yaml.load('./api/openapi.yaml');
