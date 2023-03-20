@@ -17,6 +17,17 @@ describe('Middleware - csrfCheck', () => {
         expect(next).toBeCalled();
     });
 
+    it('return 403 when no csrf token', async () => {
+        const req = httpMocks.createRequest({ method: 'POST' });
+        const res = httpMocks.createResponse();
+        const next = jest.fn();
+
+        await csrfCheck(req, res, next);
+
+        expect(next).not.toBeCalled();
+        expect(res.statusCode).toBe(403);
+    });
+
     it('return 403 when invalid csrfToken', async () => {
         const token = faker.random.alpha();
         const req = httpMocks.createRequest({
