@@ -18,9 +18,9 @@ export default function projectRouter(projectController) {
 
     const validateCreateIdea = [body('text').trim().notEmpty(), validate];
 
-    const validateGetIdeas = [query('page').toInt(), validate];
+    const validateGetIdeas = [query('page').isInt().toInt(), validate];
 
-    const validateParams = [param('id').toInt(), validate];
+    const validateParams = [param('id').isInt().toInt(), validate];
 
     router.get(
         '/:id',

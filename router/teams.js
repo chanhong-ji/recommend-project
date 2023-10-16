@@ -26,7 +26,7 @@ export default function teamRouter(teamController) {
         validate,
     ];
 
-    const validateParams = [param('id').toInt(), validate];
+    const validateParams = [param('id').isInt().toInt(), validate];
 
     router.post('/', auth, validateCreate, teamController.create);
 

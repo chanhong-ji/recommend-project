@@ -64,7 +64,7 @@ export function stopapp(server) {
     return new Promise((resolve, reject) => {
         server.close(async () => {
             try {
-                await sequelize.close();
+                // await sequelize.close();
                 resolve();
             } catch (error) {
                 reject(error);

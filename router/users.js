@@ -49,7 +49,7 @@ export default function userRouter(userController) {
         validate,
     ];
 
-    const validateProfile = [param('id').toInt()];
+    const validateProfile = [param('id').isInt().toInt(), validate];
 
     router.post('/', validateSignup, userController.signup);
 

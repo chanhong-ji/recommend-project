@@ -6,7 +6,7 @@ import { validate } from './../middleware/validator.js';
 const router = express.Router();
 
 export default function commentRouter(commentController) {
-    const validateParams = [param('id').toInt(), validate];
+    const validateParams = [param('id').isInt().toInt(), validate];
 
     router.post(
         '/:id/likes',

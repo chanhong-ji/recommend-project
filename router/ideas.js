@@ -7,11 +7,11 @@ import { isFound } from './../middleware/isFound.js';
 const router = express.Router();
 
 export default function IdeaRouter(IdeaController) {
-    const validateGetComment = [query('page').toInt(), validate];
+    const validateGetComment = [query('page').isInt().toInt(), validate];
 
     const validateCreateComment = [body('text').trim().notEmpty(), validate];
 
-    const validateParams = [param('id').toInt(), validate];
+    const validateParams = [param('id').isInt().toInt(), validate];
 
     router.get(
         '/:id/comments',
