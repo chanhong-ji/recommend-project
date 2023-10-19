@@ -9,7 +9,7 @@ class CommentController {
         const comment = await this.database.findById(id);
 
         if (!comment)
-            return res.status(400).json({ detail: 'comment not found' });
+            return res.status(404).json({ detail: 'comment not found' });
 
         const result = await this.database.createLike(id, req.userId);
 

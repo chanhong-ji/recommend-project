@@ -11,7 +11,7 @@ class IdeaController {
 
         const idea = await this.database.findById(id);
         if (!idea) {
-            return res.status(400).json({ detail: 'Idea not found' });
+            return res.status(404).json({ detail: 'Idea not found' });
         }
 
         const comments = await this.database.getComments(
@@ -30,7 +30,7 @@ class IdeaController {
 
         const idea = await this.database.findById(id);
         if (!idea) {
-            return res.status(400).json({ detail: 'Idea not found' });
+            return res.status(404).json({ detail: 'Idea not found' });
         }
 
         const comment = await this.database.createComment(id, req.userId, text);
@@ -43,7 +43,7 @@ class IdeaController {
 
         const idea = await this.database.findById(id);
         if (!idea) {
-            return res.status(400).json({ detail: 'Idea not found' });
+            return res.status(404).json({ detail: 'Idea not found' });
         }
 
         const result = await this.database.createLike(id, req.userId);
