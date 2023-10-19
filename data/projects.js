@@ -22,7 +22,7 @@ export const createIdea = async (projectId, text) =>
 
 const PER_PAGE = 10;
 
-export const getIdeas = async (projectId, page) =>
+export const getIdeas = async (projectId, page = 1) =>
     client.idea.findMany({
         where: { projectId },
         select: {

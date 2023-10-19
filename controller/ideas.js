@@ -9,6 +9,11 @@ class IdeaController {
             query: { page },
         } = req;
 
+        const idea = await this.database.findById(id);
+        if (!idea) {
+            return res.status(400).json({ detail: 'Idea not found' });
+        }
+
         const comments = await this.database.getComments(
             id,
             isNaN(page) ? 1 : page
@@ -23,6 +28,11 @@ class IdeaController {
             params: { id },
         } = req;
 
+        const idea = await this.database.findById(id);
+        if (!idea) {
+            return res.status(400).json({ detail: 'Idea not found' });
+        }
+
         const comment = await this.database.createComment(id, req.userId, text);
 
         return res.status(201).json(comment);
@@ -30,6 +40,11 @@ class IdeaController {
 
     createLike = async (req, res) => {
         const { id } = req.params;
+
+        const idea = await this.database.findById(id);
+        if (!idea) {
+            return res.status(400).json({ detail: 'Idea not found' });
+        }
 
         const result = await this.database.createLike(id, req.userId);
 

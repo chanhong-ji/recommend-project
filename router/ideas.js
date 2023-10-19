@@ -2,7 +2,6 @@ import express from 'express';
 import { body, param, query } from 'express-validator';
 import { auth } from './../middleware/auth.js';
 import { validate } from './../middleware/validator.js';
-import { isFound } from './../middleware/isFound.js';
 
 const router = express.Router();
 
@@ -18,7 +17,6 @@ export default function IdeaRouter(IdeaController) {
         validateParams,
         validateGetComment,
         auth,
-        isFound,
         IdeaController.getComments
     );
 
@@ -26,18 +24,11 @@ export default function IdeaRouter(IdeaController) {
         '/:id/comments',
         validateParams,
         auth,
-        isFound,
         validateCreateComment,
         IdeaController.createComment
     );
 
-    router.post(
-        '/:id/likes',
-        validateParams,
-        auth,
-        isFound,
-        IdeaController.createLike
-    );
+    router.post('/:id/likes', validateParams, auth, IdeaController.createLike);
 
     return router;
 }
